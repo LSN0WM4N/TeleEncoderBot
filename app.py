@@ -1,17 +1,10 @@
 import os
-import logging
 from pyrogram import Client, filters
 from pyrogram.types import Message
 import ffmpeg
 import dotenv
 
 dotenv.load_dotenv()
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 API_ID = os.getenv("API_ID")
 API_HASH = os.getenv("API_HASH")
@@ -41,10 +34,10 @@ def convert_to_h265(input_file: str, output_file: str) -> bool:
         )
         return True
     except ffmpeg.Error as e:
-        logger.error(f"Error al convertir el video: {e.stderr.decode()}")
+        print(f"[-] Error al convertir el video: {e.stderr.decode()}")
         return False
     except Exception as e:
-        logger.error(f"Error inesperado: {str(e)}")
+        print(f"[-] Error inesperado: {str(e)}")
         return False
 
 @app.on_message(filters.video | filters.document)
@@ -83,7 +76,7 @@ async def handle_video(client: Client, message: Message):
             await status_msg.delete()
         
     except Exception as e:
-        logger.error(f"Error en handle_video: {str(e)}")
+        print(f"[-] Error en handle_video: {str(e)}")
         await status_msg.edit("❌ Ocurrió un error al procesar tu video.")
     finally:
         
