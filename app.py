@@ -93,5 +93,5 @@ async def start(client: Client, message: Message):
     )
 
 if __name__ == "__main__":
-    logger.info("Iniciando el bot...")
+    print("[+] Iniciando el bot...")
     app.run()
