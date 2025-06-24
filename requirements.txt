@@ -1,0 +1,17 @@
+certifi==2025.1.31
+ffmpeg-python==0.2.0
+future==1.0.0
+nftables==0.1
+psutil==7.0.0
+pyaes==1.6.1
+pycairo==1.27.0
+pygdbmi==0.11.0.0
+PyGObject==3.52.3
+Pyrogram==2.0.106
+PySocks==1.7.1
+python-dotenv==1.1.1
+sentry-sdk==2.22.0
+smbus==1.1
+TBB==0.2
+urllib3==2.3.0
+VapourSynth==72
