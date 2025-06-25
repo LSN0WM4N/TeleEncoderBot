@@ -1,3 +1,4 @@
 pyrogram
 ffmpeg-python
 python-dotenv
+aiohttp

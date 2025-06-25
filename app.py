@@ -1,5 +1,6 @@
 import os
 import time
+import asyncio
 from pyrogram import filters
 from pyrogram.client import Client
 from pyrogram.types import Message
@@ -7,12 +8,13 @@ import ffmpeg
 import dotenv
 
 from modules import *
+from web import *
 
 dotenv.load_dotenv()
 
-API_ID = getenv("API_ID") 
-API_HASH = getenv("API_HASH") 
-BOT_TOKEN = getenv("BOT_TOKEN") 
+API_ID = os.getenv("API_ID", '') 
+API_HASH = os.getenv("API_HASH", '') 
+BOT_TOKEN = os.getenv("BOT_TOKEN", '') 
 
 app = Client(
     "video_to_h265_bot",
@@ -103,10 +105,42 @@ async def start(client: Client, message: Message):
 
 @app.on_message(filters.command("help"))
 async def help(client: Client, message: Message):
-    await message.reply(
-        "TODO"
+    await message.reply("""
+    🤖 *Bot de Conversión a H.265*
+
+    📌 *¿Qué hace este bot?*
+    Convierte videos al códec H.265 (HEVC) para reducir su tamaño manteniendo buena calidad.
+
+    🛠 *Cómo usarlo:*
+    1. Envíame cualquier video
+    2. Espera a que lo procese
+    3. Recibe el video convertido
+
+    ⚙️ *Comandos disponibles:*
+    /start - Mensaje de bienvenida
+    /help - Muestra este mensaje
+
+    ℹ️ *Más información:*
+    Visita la página de ayuda en [este enlace](https://teleencoderbot.onrender.com) o consulta la web del bot.
+    """
+    )
+
+async def main():
+    await asyncio.gather(
+        app.start(),
+        web_server()
     )
 
 if __name__ == "__main__":
     print("[+] Iniciando el bot...")
-    app.run()
+    
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(main())
+        loop.run_forever()
+    except KeyboardInterrupt:
+        print("Deteniendo el bot...")
+    finally:
+        loop.run_until_complete(app.stop())
+        loop.close()
+        print("Bot detenido correctamente")
