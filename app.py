@@ -101,6 +101,12 @@ async def start(client: Client, message: Message):
         "Simplemente envíame un video y lo convertiré al códec más eficiente."
     )
 
+@app.on_message(filters.command("help"))
+async def help(client: Client, message: Message):
+    await message.reply(
+        "TODO"
+    )
+
 if __name__ == "__main__":
     print("[+] Iniciando el bot...")
     app.run()
