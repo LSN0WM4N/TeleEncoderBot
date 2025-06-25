@@ -22,6 +22,7 @@ app = Client(
 )
 
 def convert_to_h265(input_file: str, output_file: str) -> bool:
+    print(f'Converting {input_file} to {output_file}')
     try:
         (
             ffmpeg
@@ -74,7 +75,7 @@ async def handle_video(client: Client, message: Message):
         await status_msg.edit("📤 Subiendo video convertido...")
         
         file_size = os.path.getsize(output_path)
-        if file_size > 1024 * 1024 * 1024:  
+        if file_size > 2048 * 1024 * 1024:  
             await status_msg.edit("⚠️ El video convertido es demasiado grande para enviar por Telegram.")
         else:
             await message.reply_video(
