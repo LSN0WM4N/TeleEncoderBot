@@ -1,14 +1,18 @@
 import os
-from pyrogram import Client, filters
+import time
+from pyrogram import filters
+from pyrogram.client import Client
 from pyrogram.types import Message
 import ffmpeg
 import dotenv
 
+from modules import *
+
 dotenv.load_dotenv()
 
-API_ID = os.getenv("API_ID")
-API_HASH = os.getenv("API_HASH")
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+API_ID = getenv("API_ID") 
+API_HASH = getenv("API_HASH") 
+BOT_TOKEN = getenv("BOT_TOKEN") 
 
 app = Client(
     "video_to_h265_bot",
@@ -49,9 +53,13 @@ async def handle_video(client: Client, message: Message):
         return
         
     status_msg = await message.reply("📥 Descargando tu video...")
-    
+    start_time = time.time()
+
     try:    
-        video_path = await message.download()
+        video_path = await message.download(
+            progress=progress_callback,
+            progress_args=(message, status_msg, start_time)
+        )
         
         base_name = os.path.splitext(video_path)[0]
         output_path = f"{base_name}_h265.mp4"
@@ -80,10 +88,10 @@ async def handle_video(client: Client, message: Message):
         await status_msg.edit("❌ Ocurrió un error al procesar tu video.")
     finally:
         
-        if 'video_path' in locals() and os.path.exists(video_path):
-            os.remove(video_path)
-        if 'output_path' in locals() and os.path.exists(output_path):
-            os.remove(output_path)
+        if 'video_path' in locals() and os.path.exists(video_path): # type: ignore
+            os.remove(video_path) # type: ignore
+        if 'output_path' in locals() and os.path.exists(output_path): # type: ignore
+            os.remove(output_path) # type: ignore
 
 @app.on_message(filters.command("start"))
 async def start(client: Client, message: Message):
