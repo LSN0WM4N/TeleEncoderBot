@@ -4,8 +4,9 @@ import asyncio
 from pyrogram import filters
 from pyrogram.client import Client
 from pyrogram.types import Message
-import ffmpeg
 import dotenv
+from pathlib import Path
+
 
 from modules import *
 from web import *
@@ -23,49 +24,23 @@ app = Client(
     bot_token=BOT_TOKEN
 )
 
-def convert_to_h265(input_file: str, output_file: str) -> bool:
-    print(f'Converting {input_file} to {output_file}')
-    try:
-        (
-            ffmpeg
-            .input(input_file)
-            .output(
-                output_file,
-                vcodec='libx265',
-                crf=28,  
-                preset='medium',  
-                acodec='copy'  
-            )
-            .overwrite_output()
-            .run(quiet=True)
-        )
-        return True
-    except ffmpeg.Error as e:
-        print(f"[-] Error al convertir el video: {e.stderr.decode()}")
-        return False
-    except Exception as e:
-        print(f"[-] Error inesperado: {str(e)}")
-        return False
-
 @app.on_message(filters.video | filters.document)
-async def handle_video(client: Client, message: Message):
-    user_id = message.from_user.id
-    
+async def handle_video(client: Client, message: Message):    
     if message.document and not message.document.mime_type.startswith('video/'):
         await message.reply("Por favor envía un archivo de video.")
         return
         
     status_msg = await message.reply("📥 Descargando tu video...")
-    start_time = time.time()
 
     try:    
-        video_path = await message.download(
-            progress=progress_callback,
-            progress_args=(message, status_msg, start_time)
+        video_path = await safe_download(message, status_msg)
+
+        original_name = Path(video_path).stem
+        output_path = get_unique_filename(
+            "temp_converted",
+            f"{original_name}_h265",
+            "mp4"
         )
-        
-        base_name = os.path.splitext(video_path)[0]
-        output_path = f"{base_name}_h265.mp4"
         
         await status_msg.edit("🔄 Convirtiendo a H.265...")
         success = convert_to_h265(video_path, output_path)
