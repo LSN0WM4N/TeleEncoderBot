@@ -1,7 +1,7 @@
 from aiohttp import web
 import os
 
-WEB_PORT = int(os.getenv("WEB_PORT", 8080))  # Puerto por defecto 8080
+WEB_PORT = int(os.getenv("WEB_PORT", 8080)) 
 
 async def web_server():
     app = web.Application()
@@ -11,7 +11,7 @@ async def web_server():
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", WEB_PORT)
     await site.start()
-    print(f"Servidor web iniciado en http://localhost:{WEB_PORT}")
+    print(f"Servidor web iniciado")
 
 async def handle_help(request):
     help_html = """
@@ -77,7 +77,7 @@ async def handle_help(request):
                 <li><strong>Formato de salida:</strong> MP4 con códec H.265</li>
                 <li><strong>Calidad:</strong> CRF 28 (ajustable)</li>
                 <li><strong>Audio:</strong> Copiado sin recompresión</li>
-                <li><strong>Tamaño máximo:</strong> 50MB</li>
+                <li><strong>Tamaño máximo:</strong> 2 GB</li>
             </ul>
             
             <div class="footer">

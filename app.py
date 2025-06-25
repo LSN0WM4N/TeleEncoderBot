@@ -7,8 +7,8 @@ from pyrogram.types import Message
 import dotenv
 from pathlib import Path
 
-
 from modules import *
+from texts import *
 from web import *
 
 dotenv.load_dotenv()
@@ -24,36 +24,38 @@ app = Client(
     bot_token=BOT_TOKEN
 )
 
+t = es # Change between es and en
+
 @app.on_message(filters.video | filters.document)
 async def handle_video(client: Client, message: Message):    
     if message.document and not message.document.mime_type.startswith('video/'):
-        await message.reply("Por favor envía un archivo de video.")
+        await message.reply(t.bot_error_wrong_file_type)
         return
         
-    status_msg = await message.reply("📥 Descargando tu video...")
+    status_msg = await message.reply(t.bot_downloading)
 
     try:    
         video_path = await safe_download(message, status_msg)
 
         original_name = Path(video_path).stem
         output_path = get_unique_filename(
-            "temp_converted",
+            "downloads",
             f"{original_name}_h265",
             "mp4"
         )
         
-        await status_msg.edit("🔄 Convirtiendo a H.265...")
+        await status_msg.edit(t.bot_converting)
         success = convert_to_h265(video_path, output_path)
         
         if not success:
-            await status_msg.edit("❌ Error al convertir el video.")
+            await status_msg.edit(t.bot_error_while_converting)
             return
                 
-        await status_msg.edit("📤 Subiendo video convertido...")
+        await status_msg.edit(t.bot_uploading_converted_video)
         
         file_size = os.path.getsize(output_path)
-        if file_size > 2048 * 1024 * 1024:  
-            await status_msg.edit("⚠️ El video convertido es demasiado grande para enviar por Telegram.")
+        if file_size > 2 * GB:  
+            await status_msg.edit(t.bot_error_file_to_big)
         else:
             await message.reply_video(
                 video=output_path,
@@ -63,7 +65,7 @@ async def handle_video(client: Client, message: Message):
         
     except Exception as e:
         print(f"[-] Error en handle_video: {str(e)}")
-        await status_msg.edit("❌ Ocurrió un error al procesar tu video.")
+        await status_msg.edit(t.bot_error_while_processing)
     finally:
         
         if 'video_path' in locals() and os.path.exists(video_path): # type: ignore
@@ -73,32 +75,11 @@ async def handle_video(client: Client, message: Message):
 
 @app.on_message(filters.command("start"))
 async def start(client: Client, message: Message):
-    await message.reply(
-        "👋 Hola! Soy un bot que convierte videos a H.265 (HEVC).\n\n"
-        "Simplemente envíame un video y lo convertiré al códec más eficiente."
-    )
+    await message.reply(t.bot_command_start)
 
 @app.on_message(filters.command("help"))
 async def help(client: Client, message: Message):
-    await message.reply("""
-    🤖 *Bot de Conversión a H.265*
-
-    📌 *¿Qué hace este bot?*
-    Convierte videos al códec H.265 (HEVC) para reducir su tamaño manteniendo buena calidad.
-
-    🛠 *Cómo usarlo:*
-    1. Envíame cualquier video
-    2. Espera a que lo procese
-    3. Recibe el video convertido
-
-    ⚙️ *Comandos disponibles:*
-    /start - Mensaje de bienvenida
-    /help - Muestra este mensaje
-
-    ℹ️ *Más información:*
-    Visita la página de ayuda en [este enlace](https://teleencoderbot.onrender.com) o consulta la web del bot.
-    """
-    )
+    await message.reply(t.bot_command_help)
 
 async def main():
     await asyncio.gather(

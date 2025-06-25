@@ -17,6 +17,9 @@ def sanitize_filename(filename: str) -> str:
     return clean_name
 
 def get_unique_filename(directory: str, base_name: str, extension: str) -> str:
+
+    os.makedirs(directory, exist_ok=True)
+    
     counter = 1
     while True:
         if counter == 1:
@@ -31,7 +34,7 @@ def get_unique_filename(directory: str, base_name: str, extension: str) -> str:
 
 async def safe_download(message: Message, status_msg: Message) -> str:
     try:
-        temp_dir = "temp_downloads"
+        temp_dir = "downloads"
         os.makedirs(temp_dir, exist_ok=True)
 
         if message.video:
@@ -46,6 +49,8 @@ async def safe_download(message: Message, status_msg: Message) -> str:
         
         dest_path = get_unique_filename(temp_dir, clean_base, extension)
         
+        print(f'[Debug] >> dest+path: {dest_path}')
+
         download_path = await message.download(
             file_name=dest_path,
             progress=progress_callback,

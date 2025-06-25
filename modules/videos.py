@@ -1,7 +1,7 @@
 import ffmpeg
 
 def convert_to_h265(input_file: str, output_file: str) -> bool:
-    print(f'Converting {input_file} to {output_file}')
+    print(f'[Debug] >> Converting {input_file} to {output_file}')
     try:
         (
             ffmpeg
