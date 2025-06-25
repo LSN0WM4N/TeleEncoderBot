@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 sudo apt-get update
 sudo apt-get install -y ffmpeg
-pip install -r ./requirements.txt
+pip install -r ./build/requirements.txt
