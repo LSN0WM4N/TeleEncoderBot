@@ -7,6 +7,9 @@ from pathlib import Path
 from pyrogram.types import Message
 
 from .progress import progress_callback
+from .logs import setup_logging
+
+personal_logger = setup_logging()
 
 def sanitize_filename(filename: str) -> str:
     clean_name = unquote(filename)
@@ -49,7 +52,7 @@ async def safe_download(message: Message, status_msg: Message) -> str:
         
         dest_path = get_unique_filename(temp_dir, clean_base, extension)
         
-        print(f'[Debug] >> dest+path: {dest_path}')
+        personal_logger.debug(f'[Debug] >> dest+path: {dest_path}')
 
         download_path = await message.download(
             file_name=dest_path,
@@ -60,6 +63,6 @@ async def safe_download(message: Message, status_msg: Message) -> str:
         return download_path
         
     except Exception as e:
-        print(f"Error en safe_download: {str(e)}")
+        personal_logger.error(f"Error en safe_download: {str(e)}")
         raise
 

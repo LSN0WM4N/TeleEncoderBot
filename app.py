@@ -21,10 +21,12 @@ app = Client(
     "video_to_h265_bot",
     api_id=API_ID,
     api_hash=API_HASH,
-    bot_token=BOT_TOKEN
+    bot_token=BOT_TOKEN,
+    sleep_threshold=60
 )
 
 t = es # Change between es and en
+personal_logger = setup_logging()
 
 @app.on_message(filters.video | filters.document)
 async def handle_video(client: Client, message: Message):    
@@ -64,7 +66,7 @@ async def handle_video(client: Client, message: Message):
             await status_msg.delete()
         
     except Exception as e:
-        print(f"[-] Error en handle_video: {str(e)}")
+        personal_logger.error(f"[-] Error en handle_video: {str(e)}")
         await status_msg.edit(t.bot_error_while_processing)
     finally:
         
@@ -88,15 +90,15 @@ async def main():
     )
 
 if __name__ == "__main__":
-    print("[+] Iniciando el bot...")
+    personal_logger.info("[+] Iniciando el bot...")
     
     loop = asyncio.get_event_loop()
     try:
         loop.run_until_complete(main())
         loop.run_forever()
     except KeyboardInterrupt:
-        print("Deteniendo el bot...")
+        personal_logger.info("Deteniendo el bot...")
     finally:
         loop.run_until_complete(app.stop())
         loop.close()
-        print("Bot detenido correctamente")
+        personal_logger.info("Bot detenido correctamente")

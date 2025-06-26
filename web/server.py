@@ -7,11 +7,11 @@ async def web_server():
     app = web.Application()
     app.router.add_get("/", handle_help)
     app.router.add_get("/help", handle_help)
+    app.router.add_get("/logs", handle_logs)
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", WEB_PORT)
     await site.start()
-    print(f"Servidor web iniciado")
 
 async def handle_help(request):
     help_html = """
@@ -88,3 +88,71 @@ async def handle_help(request):
     </html>
     """
     return web.Response(text=help_html, content_type="text/html")
+
+async def handle_logs(request): 
+    try: 
+        logs = ''
+        print(os.curdir)
+        with open('logs/bot.log', 'r', encoding='utf-8') as log_file:
+            for line in log_file:
+                logs = f'<span class="command">{line}</span><br />\n{logs}'
+    except:
+        logs = "No logs to show"
+
+    
+    logs_html = """
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bot de Conversión a H.265 - Ayuda</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                color: #333;
+            }
+            h1 {
+                color: #2c3e50;
+                text-align: center;
+            }
+            .container {
+                background-color: #f9f9f9;
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .command {
+                background-color: #e8f4f8;
+                padding: 8px 12px;
+                border-radius: 4px;
+                font-family: monospace;
+            }
+            .footer {
+                margin-top: 30px;
+                text-align: center;
+                font-size: 0.9em;
+                color: #7f8c8d;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Logs:</h1>
+            <ul>
+                """ + logs + """
+            </ul>
+            
+            <div class="footer">
+                <p>Bot desarrollado con Pyrogram y FFmpeg</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    return web.Response(text=logs_html, content_type="text/html")

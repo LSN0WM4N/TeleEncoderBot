@@ -1,7 +1,10 @@
 import ffmpeg
+from .logs import setup_logging
+
+personal_logger = setup_logging()
 
 def convert_to_h265(input_file: str, output_file: str) -> bool:
-    print(f'[Debug] >> Converting {input_file} to {output_file}')
+    personal_logger.debug(f'[Debug] >> Converting {input_file} to {output_file}')
     try:
         (
             ffmpeg
@@ -18,8 +21,8 @@ def convert_to_h265(input_file: str, output_file: str) -> bool:
         )
         return True
     except ffmpeg.Error as e:
-        print(f"[-] Error al convertir el video: {e.stderr.decode()}")
+        personal_logger.error(f"[-] Error al convertir el video: {e.stderr.decode()}")
         return False
     except Exception as e:
-        print(f"[-] Error inesperado: {str(e)}")
+        personal_logger.error(f"[-] Error inesperado: {str(e)}")
         return False
